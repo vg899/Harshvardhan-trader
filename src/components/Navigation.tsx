@@ -64,7 +64,7 @@ export const Navigation = () => {
   }
 
   return (
-    <nav className="h-20 bg-slate-900 border-t border-slate-800 flex items-center justify-center gap-1 absolute bottom-0 left-0 w-full shrink-0 px-2 overflow-x-auto hide-scrollbar z-50">
+    <nav className="pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] bg-slate-900 border-t border-slate-800 flex items-center justify-center gap-1 absolute bottom-0 left-0 w-full shrink-0 px-2 overflow-x-auto hide-scrollbar z-50">
       <div className="flex items-center bg-slate-800 p-1.5 rounded-2xl min-w-max">
         {navItems.map((item) => {
           const Icon = item.icon;

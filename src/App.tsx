@@ -14,7 +14,7 @@ const MainContent = () => {
   const { activeTab } = useAppNavigation();
 
   return (
-    <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-24 md:pb-24">
+    <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-[calc(6rem+env(safe-area-inset-bottom))]">
       <div className="max-w-7xl mx-auto">
         {activeTab === "home" && <Dashboard />}
         {activeTab === "items" && <ItemsScreen />}
@@ -48,7 +48,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-[100dvh] h-screen bg-[#0f172a] text-slate-100 flex flex-col font-sans selection:bg-blue-500 selection:text-white overflow-hidden">
+    <div className="fixed inset-0 bg-[#0f172a] text-slate-100 flex flex-col font-sans selection:bg-blue-500 selection:text-white overflow-hidden pt-[env(safe-area-inset-top)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
       <Header />
       <div className="flex flex-1 flex-col overflow-hidden relative">
         <MainContent />
