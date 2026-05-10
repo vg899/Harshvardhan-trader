@@ -23,6 +23,8 @@ export interface Customer {
   phone: string;
   dues: number;
   totalSpent: number;
+  visits?: number;
+  lastVisit?: string;
 }
 
 export interface SaleItem {

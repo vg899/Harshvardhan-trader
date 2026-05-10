@@ -108,7 +108,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const customerToUpdate = customers.find(c => c.id === sale.customerId);
         if (customerToUpdate) {
             await updateCustomer(sale.customerId, {
-                totalSpent: (customerToUpdate.totalSpent || 0) + sale.finalAmount
+                totalSpent: (customerToUpdate.totalSpent || 0) + sale.finalAmount,
+                visits: (customerToUpdate.visits || 0) + 1,
+                lastVisit: new Date().toISOString()
             });
         }
     }

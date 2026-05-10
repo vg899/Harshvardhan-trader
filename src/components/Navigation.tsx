@@ -52,14 +52,14 @@ export const Navigation = () => {
   const { userProfile } = useAuth();
 
   const navItems = [
-    { id: "home", label: "Dashboard", icon: LayoutDashboard },
-    { id: "items", label: "Items", icon: Package },
     { id: "billing", label: "Billing", icon: Receipt },
     { id: "customers", label: "Customers", icon: Users },
-    { id: "reports", label: "Reports", icon: PieChart },
+    { id: "items", label: "Stock", icon: Package },
   ];
 
   if (userProfile?.role === "Admin") {
+    navItems.unshift({ id: "home", label: "Dashboard", icon: LayoutDashboard });
+    navItems.push({ id: "reports", label: "Reports", icon: PieChart });
     navItems.push({ id: "settings", label: "Settings", icon: Settings });
   }
 

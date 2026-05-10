@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useData } from "../contexts/DataContext";
+import { useAuth } from "../contexts/AuthContext";
 import { Item } from "../types";
 import { Search, Plus, Filter, Edit, Trash2 } from "lucide-react";
 import { parseISO, format } from "date-fns";
@@ -8,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export const ItemsScreen = () => {
   const { items, addItem, updateItem, deleteItem, sales } = useData();
+  const { userProfile } = useAuth();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -65,12 +67,14 @@ export const ItemsScreen = () => {
                 className="bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-3 py-1.5 text-xs w-full sm:w-64 focus:outline-none focus:border-blue-500 text-white"
               />
             </div>
-            <button
-              onClick={openAdd}
-              className="bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold text-white transition-colors whitespace-nowrap shadow-lg shadow-blue-500/20"
-            >
-              + Add Item
-            </button>
+            {userProfile?.role === "Admin" && (
+              <button
+                onClick={openAdd}
+                className="bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold text-white transition-colors whitespace-nowrap shadow-lg shadow-blue-500/20"
+              >
+                + Add Item
+              </button>
+            )}
           </div>
         </div>
 
@@ -123,9 +127,15 @@ export const ItemsScreen = () => {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2 justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => setViewingHistoryFor(item)} className="p-1 px-2 text-[10px] uppercase font-bold tracking-wider bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/40 rounded">History</button>
-                      <button onClick={() => openEdit(item)} className="p-1 px-2 text-[10px] uppercase font-bold tracking-wider bg-slate-700 text-slate-300 hover:text-white rounded">Edit</button>
-                      <button onClick={() => {if(confirm('Delete item?')) deleteItem(item.id)}} className="p-1 px-2 text-[10px] uppercase font-bold tracking-wider bg-red-500/20 text-red-400 hover:bg-red-500/40 rounded">Del</button>
+                      {userProfile?.role === "Admin" ? (
+                        <>
+                          <button onClick={() => setViewingHistoryFor(item)} className="p-1 px-2 text-[10px] uppercase font-bold tracking-wider bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/40 rounded">History</button>
+                          <button onClick={() => openEdit(item)} className="p-1 px-2 text-[10px] uppercase font-bold tracking-wider bg-slate-700 text-slate-300 hover:text-white rounded">Edit</button>
+                          <button onClick={() => {if(confirm('Delete item?')) deleteItem(item.id)}} className="p-1 px-2 text-[10px] uppercase font-bold tracking-wider bg-red-500/20 text-red-400 hover:bg-red-500/40 rounded">Del</button>
+                        </>
+                      ) : (
+                        <span className="text-[10px] text-slate-500 italic">View Only</span>
+                      )}
                     </div>
                   </td>
                 </tr>

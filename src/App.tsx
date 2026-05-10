@@ -11,7 +11,14 @@ import { ReportsScreen } from "./screens/Reports";
 import { CustomersScreen } from "./screens/Customers";
 
 const MainContent = () => {
-  const { activeTab } = useAppNavigation();
+  const { activeTab, setActiveTab } = useAppNavigation();
+  const { userProfile } = useAuth();
+  
+  React.useEffect(() => {
+    if (userProfile?.role === "Shopkeeper" && (activeTab === "home" || activeTab === "reports" || activeTab === "settings")) {
+       setActiveTab("billing");
+    }
+  }, [userProfile?.role, activeTab, setActiveTab]);
 
   return (
     <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-[calc(6rem+env(safe-area-inset-bottom))]">
