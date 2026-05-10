@@ -1,0 +1,22 @@
+{
+  "rules": {
+    "users": {
+       "$uid": {
+          ".read": "auth != null",
+          ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'Admin'"
+       }
+    },
+    "items": {
+       ".read": "auth != null",
+       ".write": "root.child('users').child(auth.uid).child('role').val() === 'Admin' || root.child('users').child(auth.uid).child('role').val() === 'Shopkeeper'"
+    },
+    "sales": {
+       ".read": "auth != null",
+       ".write": "auth != null"
+    },
+    "customers": {
+       ".read": "auth != null",
+       ".write": "auth != null"
+    }
+  }
+}
