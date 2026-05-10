@@ -15,6 +15,15 @@ export interface Item {
   purchasePrice: number;
   sellingPrice: number;
   stock: number;
+  color?: string;
+  quantityVariants?: ItemVariant[];
+}
+
+export interface ItemVariant {
+  size: string;
+  stock: number;
+  purchasePrice: number;
+  sellingPrice: number;
 }
 
 export interface Customer {
@@ -29,10 +38,13 @@ export interface Customer {
 
 export interface SaleItem {
   itemId: string;
+  baseItemId?: string;
   name: string;
   qty: number;
   price: number;
   total: number;
+  color?: string;
+  size?: string;
 }
 
 export interface Sale {

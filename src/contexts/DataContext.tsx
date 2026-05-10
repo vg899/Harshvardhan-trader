@@ -96,10 +96,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Auto deduct stock
     sale.items.forEach(async (si) => {
-      const itemToUpdate = items.find(i => i.id === si.itemId);
+      const realId = si.baseItemId || si.itemId;
+      const itemToUpdate = items.find(i => i.id === realId);
       if (itemToUpdate) {
-             const newStock = (itemToUpdate.stock || 0) - si.qty;
-             await updateItem(si.itemId, { stock: newStock });
+          if (si.size && itemToUpdate.quantityVariants) {
+              const newVariants = itemToUpdate.quantityVariants.map(v => 
+                  v.size === si.size ? { ...v, stock: Math.max(0, v.stock - si.qty) } : v
+              );
+              await updateItem(realId, { quantityVariants: newVariants });
+          } else {
+              const newStock = Math.max(0, (itemToUpdate.stock || 0) - si.qty);
+              await updateItem(realId, { stock: newStock });
+          }
       }
     });
 

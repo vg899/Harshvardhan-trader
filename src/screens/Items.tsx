@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useData } from "../contexts/DataContext";
 import { useAuth } from "../contexts/AuthContext";
-import { Item } from "../types";
+import { Item, ItemVariant } from "../types";
 import { Search, Plus, Filter, Edit, Trash2 } from "lucide-react";
 import { parseISO, format } from "date-fns";
 import { formatCurrency } from "../lib/utils";
@@ -26,27 +26,31 @@ export const ItemsScreen = () => {
   });
 
   const [formData, setFormData] = useState({
-    name: "", category: "Tools", unit: "Piece", purchasePrice: 0, sellingPrice: 0, stock: 0
+    name: "", category: "Tools", unit: "Piece", purchasePrice: 0, sellingPrice: 0, stock: 0, color: "", quantityVariants: [] as ItemVariant[]
   });
 
   const openAdd = () => {
-    setFormData({ name: "", category: "Tools", unit: "Piece", purchasePrice: 0, sellingPrice: 0, stock: 0 });
+    setFormData({ name: "", category: "Tools", unit: "Piece", purchasePrice: 0, sellingPrice: 0, stock: 0, color: "", quantityVariants: [] });
     setEditingItem(null);
     setIsModalOpen(true);
   };
 
   const openEdit = (item: Item) => {
-    setFormData({ ...item });
+    setFormData({ ...item, quantityVariants: item.quantityVariants || [] });
     setEditingItem(item);
     setIsModalOpen(true);
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    const dataToSave = { ...formData };
+    if (dataToSave.category !== "Paint") {
+      delete (dataToSave as any).color;
+    }
     if (editingItem) {
-      await updateItem(editingItem.id, formData);
+      await updateItem(editingItem.id, dataToSave);
     } else {
-      await addItem(formData as any);
+      await addItem(dataToSave as any);
     }
     setIsModalOpen(false);
   };
@@ -111,15 +115,41 @@ export const ItemsScreen = () => {
             <tbody className="divide-y divide-slate-700/50 text-xs">
               {filteredItems.map(item => (
                 <tr key={item.id} className="hover:bg-blue-500/5 transition-colors group">
-                  <td className="px-4 py-3 font-semibold text-white">{item.name}</td>
+                  <td className="px-4 py-3 font-semibold text-white">
+                    {item.name}
+                    {item.category === "Paint" && item.color && (
+                      <span className="ml-2 text-xs font-normal text-slate-400">({item.color})</span>
+                    )}
+                    {item.quantityVariants && item.quantityVariants.length > 0 && (
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {item.quantityVariants.map(v => (
+                           <span key={v.size} className="text-[9px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 border border-slate-700">
+                             {v.size}: {v.stock}
+                           </span>
+                        ))}
+                      </div>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-slate-400 italic">{item.category}</td>
                   <td className="px-4 py-3 text-slate-300 text-center">{item.unit}</td>
-                  <td className="px-4 py-3 text-right text-emerald-400 font-bold">{formatCurrency(item.sellingPrice)}</td>
-                  <td className="px-4 py-3 text-right font-mono text-slate-200">{item.stock}</td>
+                  <td className="px-4 py-3 text-right text-emerald-400 font-bold">
+                    {item.quantityVariants && item.quantityVariants.length > 0 ? (
+                       <span className="text-slate-400 font-normal text-[10px]">Variants</span>
+                    ) : (
+                       formatCurrency(item.sellingPrice)
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-right font-mono text-slate-200">
+                    {item.quantityVariants && item.quantityVariants.length > 0 ? (
+                       item.quantityVariants.reduce((acc, v) => acc + v.stock, 0)
+                    ) : (
+                       item.stock
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-center">
-                    {item.stock <= 0 ? (
+                    {(item.quantityVariants && item.quantityVariants.length > 0 ? item.quantityVariants.reduce((acc, v) => acc + v.stock, 0) : item.stock) <= 0 ? (
                       <span className="px-2 py-0.5 bg-red-500/10 text-red-500 rounded-full text-[10px] uppercase font-bold">Out of Stock</span>
-                    ) : item.stock < 10 ? (
+                    ) : (item.quantityVariants && item.quantityVariants.length > 0 ? item.quantityVariants.reduce((acc, v) => acc + v.stock, 0) : item.stock) < 10 ? (
                       <span className="px-2 py-0.5 bg-orange-500/10 text-orange-500 rounded-full text-[10px] uppercase font-bold">Low Stock</span>
                     ) : (
                       <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 rounded-full text-[10px] uppercase font-bold">In Stock</span>
@@ -182,25 +212,80 @@ export const ItemsScreen = () => {
                      </select>
                    </div>
                 </div>
+                {formData.category === "Paint" && (
+                   <div>
+                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Color / Shade Name</label>
+                     <div className="flex gap-2">
+                       <input type="text" required placeholder="e.g. Sky Blue, Royal Red" value={formData.color || ""} onChange={e => setFormData({...formData, color: e.target.value})} className="flex-1 bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-blue-500 outline-none text-sm" />
+                       <input type="color" value={formData.color && formData.color.startsWith('#') ? formData.color : "#ffffff"} onChange={e => setFormData({...formData, color: e.target.value})} className="w-10 h-10 rounded-lg cursor-pointer bg-[#0f172a] border border-slate-700 p-0.5" title="Pick Color"/>
+                     </div>
+                   </div>
+                )}
                 <div className="grid grid-cols-2 gap-4">
                    <div>
-                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Purchase (₹)</label>
+                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Purchase (₹) [Base]</label>
                      <input type="number" required value={formData.purchasePrice} onChange={e => setFormData({...formData, purchasePrice: Number(e.target.value)})} className="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-blue-500 outline-none text-right font-mono" />
                    </div>
                    <div>
-                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Selling (₹)</label>
+                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Selling (₹) [Base]</label>
                      <input type="number" required value={formData.sellingPrice} onChange={e => setFormData({...formData, sellingPrice: Number(e.target.value)})} className="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-blue-500 outline-none text-right font-mono" />
                    </div>
                 </div>
                  <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Initial Stock</label>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Initial Stock [Base]</label>
                   <input type="number" required value={formData.stock} onChange={e => setFormData({...formData, stock: Number(e.target.value)})} className="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-blue-500 outline-none text-right font-mono" />
+                </div>
+
+                {/* Variants Section */}
+                <div className="pt-4 border-t border-slate-800">
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Quantity Variants / Pack Sizes</label>
+                    <button type="button" onClick={() => setFormData({...formData, quantityVariants: [...(formData.quantityVariants || []), { size: "", stock: 0, purchasePrice: 0, sellingPrice: 0 }]})} className="text-[10px] text-blue-400 uppercase font-bold tracking-widest hover:text-blue-300 flex items-center gap-1">
+                      <Plus className="w-3 h-3" /> Add Variant
+                    </button>
+                  </div>
+                  {(formData.quantityVariants || []).length > 0 ? (
+                    <div className="space-y-2">
+                      {formData.quantityVariants.map((variant, index) => (
+                        <div key={index} className="flex flex-col sm:flex-row items-center gap-2 bg-[#0f172a] border border-slate-700 p-2 rounded-lg">
+                          <input type="text" placeholder="Size (e.g. 500ml)" value={variant.size} onChange={e => {
+                            const newVar = [...formData.quantityVariants];
+                            newVar[index].size = e.target.value;
+                            setFormData({...formData, quantityVariants: newVar});
+                          }} className="flex-1 w-full sm:w-auto bg-transparent border-b sm:border-0 border-slate-700 pb-2 sm:pb-0 text-white text-xs outline-none" required />
+                          <div className="flex w-full sm:w-auto gap-2">
+                            <input type="number" placeholder="Purch" value={variant.purchasePrice ?? ''} onChange={e => {
+                              const newVar = [...formData.quantityVariants];
+                              newVar[index].purchasePrice = Number(e.target.value);
+                              setFormData({...formData, quantityVariants: newVar});
+                            }} className="w-16 sm:w-20 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white text-xs outline-none text-right font-mono" required title="Purchase Price" />
+                            <input type="number" placeholder="Sell" value={variant.sellingPrice ?? ''} onChange={e => {
+                              const newVar = [...formData.quantityVariants];
+                              newVar[index].sellingPrice = Number(e.target.value);
+                              setFormData({...formData, quantityVariants: newVar});
+                            }} className="w-16 sm:w-20 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white text-xs outline-none text-right font-mono" required title="Selling Price" />
+                            <input type="number" placeholder="Stock" value={variant.stock ?? ''} onChange={e => {
+                              const newVar = [...formData.quantityVariants];
+                              newVar[index].stock = Number(e.target.value);
+                              setFormData({...formData, quantityVariants: newVar});
+                            }} className="w-16 sm:w-20 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white text-xs outline-none text-right font-mono" required title="Stock" />
+                            <button type="button" onClick={() => {
+                              const newVar = formData.quantityVariants.filter((_, i) => i !== index);
+                              setFormData({...formData, quantityVariants: newVar});
+                            }} className="text-slate-500 hover:text-red-400 p-1"><Trash2 className="w-4 h-4" /></button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[10px] text-slate-500 italic">Optional. Add if item has multiple sizes (e.g. 1L, 5L).</p>
+                  )}
                 </div>
                 
                 <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
                   <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-xs uppercase tracking-wider font-bold text-slate-400 hover:text-white">Cancel</button>
                   <button type="submit" className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-wider rounded-lg shadow-lg shadow-blue-500/20 active:scale-95 transition-all">
-                     Save
+                     SAVE ITEM
                   </button>
                 </div>
               </form>
@@ -235,10 +320,10 @@ export const ItemsScreen = () => {
                   </thead>
                   <tbody className="divide-y divide-slate-700/50">
                     {sales
-                      .filter(s => s.items.some(i => i.itemId === viewingHistoryFor.id))
+                      .filter(s => s.items.some(i => (i.baseItemId || i.itemId) === viewingHistoryFor.id))
                       .sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                       .map(sale => {
-                        const saleItem = sale.items.find(i => i.itemId === viewingHistoryFor.id);
+                        const saleItem = sale.items.find(i => (i.baseItemId || i.itemId) === viewingHistoryFor.id);
                         return (
                           <tr key={sale.id} className="hover:bg-blue-500/5 transition-colors">
                             <td className="px-5 py-3 text-slate-300 font-mono">
@@ -251,12 +336,12 @@ export const ItemsScreen = () => {
                               Bill #{sale.billNo} {sale.customerName ? `(${sale.customerName})` : ''}
                             </td>
                             <td className="px-5 py-3 text-right font-bold text-red-400 font-mono">
-                              -{saleItem?.qty}
+                              -{saleItem?.qty}{saleItem?.size ? ` (${saleItem.size})` : ''}
                             </td>
                           </tr>
                         );
                     })}
-                    {sales.filter(s => s.items.some(i => i.itemId === viewingHistoryFor.id)).length === 0 && (
+                    {sales.filter(s => s.items.some(i => (i.baseItemId || i.itemId) === viewingHistoryFor.id)).length === 0 && (
                       <tr>
                         <td colSpan={4} className="px-5 py-8 text-center text-slate-500 italic">No sales history found. Note: Manual stock adjustments update the current stock directly.</td>
                       </tr>

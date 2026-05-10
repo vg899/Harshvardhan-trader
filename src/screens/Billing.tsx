@@ -23,10 +23,31 @@ export const BillingScreen = () => {
 
   const filteredItems = useMemo(() => {
     if (!search) return [];
-    return items.filter(
-      (item) =>
-        item.name.toLowerCase().includes(search.toLowerCase()) && item.stock > 0
-    ).slice(0, 10);
+    
+    const flatItems: any[] = [];
+    items.forEach(item => {
+      if (item.name.toLowerCase().includes(search.toLowerCase())) {
+        if (item.quantityVariants && item.quantityVariants.length > 0) {
+          item.quantityVariants.forEach(v => {
+            if (v.stock > 0) {
+              flatItems.push({
+                ...item,
+                isVariant: true,
+                variantSize: v.size,
+                sellingPrice: v.sellingPrice || item.sellingPrice,
+                stock: v.stock
+              });
+            }
+          });
+        } else {
+          if (item.stock > 0) {
+            flatItems.push(item);
+          }
+        }
+      }
+    });
+
+    return flatItems.slice(0, 15);
   }, [search, items]);
 
   const matchedCustomers = useMemo(() => {
@@ -36,14 +57,22 @@ export const BillingScreen = () => {
     ).slice(0, 4);
   }, [customerSearch, customers, selectedCustomer]);
 
-  const addToCart = (item: Item) => {
-    const existing = cart.find((i) => i.itemId === item.id);
+  const addToCart = (item: any) => {
+    const cartItemId = item.isVariant ? `${item.id}-${item.variantSize}` : item.id;
+    const existing = cart.find((i) => i.itemId === cartItemId);
     if (existing) {
       if (existing.qty < item.stock) {
-        updateQty(item.id, existing.qty + 1);
+        updateQty(cartItemId, existing.qty + 1);
       }
     } else {
-      setCart([{ itemId: item.id, name: item.name, qty: 1, price: item.sellingPrice, total: item.sellingPrice }, ...cart]);
+      let displayName = item.name;
+      if (item.category === "Paint" && item.color) {
+        displayName = `${displayName} (${item.color})`;
+      }
+      if (item.isVariant && item.variantSize) {
+        displayName = `${displayName} - ${item.variantSize}`;
+      }
+      setCart([{ itemId: cartItemId, baseItemId: item.id, name: displayName, qty: 1, price: item.sellingPrice, total: item.sellingPrice, color: item.color, size: item.variantSize }, ...cart]);
     }
     setSearch("");
   };
@@ -233,14 +262,24 @@ export const BillingScreen = () => {
           <AnimatePresence>
             {search && filteredItems.length > 0 && (
               <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden max-h-72 overflow-y-auto">
-                  {filteredItems.map(item => (
+                  {filteredItems.map(item => {
+                    const uniqueKey = item.isVariant ? `${item.id}-${item.variantSize}` : item.id;
+                    return (
                     <button
-                      key={item.id}
+                      key={uniqueKey}
                       onClick={() => addToCart(item)}
                       className="w-full text-left p-4 hover:bg-slate-700 border-b border-slate-700/50 last:border-0 flex justify-between items-center transition-all group"
                     >
                       <div>
-                        <p className="text-white font-semibold group-hover:text-blue-400 transition-colors">{item.name}</p>
+                        <p className="text-white font-semibold group-hover:text-blue-400 transition-colors">
+                          {item.name}
+                          {item.category === "Paint" && item.color && (
+                             <span className="ml-1.5 text-slate-400 font-normal">({item.color})</span>
+                          )}
+                          {item.isVariant && (
+                             <span className="ml-1.5 text-blue-400 font-bold">- {item.variantSize}</span>
+                          )}
+                        </p>
                         <div className="flex gap-2 mt-1">
                           <span className="text-[10px] bg-slate-900 px-2 py-0.5 rounded text-slate-400 uppercase tracking-wider border border-slate-700">{item.category}</span>
                           <span className="text-[10px] bg-slate-900 px-2 py-0.5 rounded text-slate-400 uppercase tracking-wider border border-slate-700">Stock: {item.stock}</span>
@@ -248,10 +287,11 @@ export const BillingScreen = () => {
                       </div>
                       <div className="text-right">
                          <p className="text-emerald-400 font-bold font-mono text-lg">{formatCurrency(item.sellingPrice)}</p>
-                         <p className="text-[9px] text-slate-500 uppercase tracking-widest mt-0.5">Per {item.unit}</p>
+                         <p className="text-[9px] text-slate-500 uppercase tracking-widest mt-0.5">Per {item.isVariant ? item.variantSize : item.unit}</p>
                       </div>
                     </button>
-                  ))}
+                    )
+                  })}
               </motion.div>
             )}
             {search && filteredItems.length === 0 && (
