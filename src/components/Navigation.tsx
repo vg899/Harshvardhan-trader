@@ -64,8 +64,8 @@ export const Navigation = () => {
   }
 
   return (
-    <nav className="pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] bg-slate-900 border-t border-slate-800 flex items-center justify-center gap-1 absolute bottom-0 left-0 w-full shrink-0 px-2 overflow-x-auto hide-scrollbar z-50">
-      <div className="flex items-center bg-slate-800 p-1.5 rounded-2xl min-w-max">
+    <nav className="pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] bg-slate-900 border-t border-slate-800 flex items-center justify-center absolute bottom-0 left-0 w-full shrink-0 px-2 z-50">
+      <div className="flex items-center justify-between bg-slate-800 p-1.5 rounded-2xl w-full max-w-2xl">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -73,14 +73,14 @@ export const Navigation = () => {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id as any)}
-              className={`px-4 sm:px-6 md:px-8 py-3 rounded-xl flex flex-col items-center gap-1 transition-all ${
+              className={`flex-1 min-w-0 px-1 py-3 md:px-4 rounded-xl flex flex-col items-center gap-1 transition-all ${
                 isActive 
                   ? 'bg-blue-600 text-white shadow-inner shadow-white/10' 
                   : 'text-slate-400 hover:bg-slate-700 hover:text-white'
               }`}
             >
-              <Icon className="w-5 h-5" />
-              <span className="text-[9px] font-bold uppercase tracking-widest">{item.label}</span>
+              <Icon className="w-5 h-5 shrink-0" />
+              <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest truncate w-full text-center px-0.5">{item.label}</span>
             </button>
           );
         })}
