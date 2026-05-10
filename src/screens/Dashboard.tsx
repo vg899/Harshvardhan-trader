@@ -73,7 +73,7 @@ export const Dashboard = () => {
         </span>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         {cards.map((card, i) => (
           <motion.div
             key={card.title}
@@ -86,7 +86,7 @@ export const Dashboard = () => {
             <p className={`text-[10px] uppercase tracking-widest font-bold ${card.text.includes('orange') ? 'text-orange-400' : card.text.includes('red') ? 'text-red-400' : 'text-slate-500'}`}>
               {card.title}
             </p>
-            <h3 className={`text-2xl font-bold mt-1 tracking-tight ${card.text.includes('orange') || card.text.includes('red') || card.text.includes('emerald') ? card.text : 'text-white'}`}>
+            <h3 className={`text-lg font-bold mt-1 tracking-tight ${card.text.includes('orange') || card.text.includes('red') || card.text.includes('emerald') ? card.text : 'text-white'}`}>
               {card.value}
             </h3>
             <div className="absolute right-4 top-4 opacity-20">
@@ -96,7 +96,7 @@ export const Dashboard = () => {
         ))}
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6 mt-8">
+      <div className="flex flex-col gap-6 mt-8">
          <div className="bg-[#1e293b]/40 border border-slate-700/50 rounded-2xl overflow-hidden flex flex-col">
             <div className="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/30">
                <h2 className="text-sm font-bold uppercase tracking-wider text-slate-300">Recent Transactions</h2>

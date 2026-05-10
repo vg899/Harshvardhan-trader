@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useData } from "../contexts/DataContext";
+import { useAppNavigation } from "../contexts/NavigationContext";
 import { Customer } from "../types";
 import { Search, UserPlus, Phone, IndianRupee, Clock, ShoppingBag, ArrowRight } from "lucide-react";
 import { formatCurrency } from "../lib/utils";
@@ -8,6 +9,7 @@ import { parseISO, format } from "date-fns";
 
 export const CustomersScreen = () => {
   const { customers, sales, addCustomer, updateCustomer } = useData();
+  const { setActiveTab } = useAppNavigation();
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -58,9 +60,9 @@ export const CustomersScreen = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="flex flex-col gap-4">
         {filteredCustomers.map((customer) => (
-          <motion.div layout initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} key={customer.id} className="bg-[#1e293b]/40 border border-slate-700/50 hover:border-slate-600 rounded-3xl p-5 hover:bg-[#1e293b]/80 transition-colors shadow-xl">
+          <motion.div layout initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} key={customer.id} className="bg-[#1e293b]/40 border border-slate-700/50 hover:border-slate-600 rounded-3xl p-4 hover:bg-[#1e293b]/80 transition-colors shadow-xl">
              <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-lg font-bold text-white leading-tight">{customer.name}</h3>
@@ -85,7 +87,7 @@ export const CustomersScreen = () => {
                 </div>
              </div>
 
-             <div className="flex items-center gap-4 text-xs text-slate-400 mb-5 pl-1">
+             <div className="flex justify-between items-center text-xs text-slate-400 mb-5 px-1">
                 <div className="flex items-center gap-1.5">
                    <ShoppingBag className="w-4 h-4 text-slate-500"/>
                    <span><strong className="text-white">{customer.visits || 0}</strong> Visits</span>
@@ -99,9 +101,9 @@ export const CustomersScreen = () => {
              <div className="flex items-center gap-2 mt-auto pt-4 border-t border-slate-700/50">
                  <button 
                   onClick={() => setSelectedCustomer(customer)}
-                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-white text-xs uppercase tracking-wider font-bold py-2.5 rounded-xl transition-colors shrink-0"
+                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-white text-[10px] uppercase tracking-wider font-bold py-2.5 rounded-xl transition-colors shrink-0"
                  >
-                    View Profile
+                    Profile
                  </button>
                  <button 
                   disabled={(customer.dues || 0) <= 0}
@@ -111,9 +113,9 @@ export const CustomersScreen = () => {
                           updateCustomer(customer.id, { dues: Math.max(0, (customer.dues || 0) - Number(amount)) });
                       }
                   }}
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-30 disabled:hover:bg-emerald-600 text-white text-xs uppercase tracking-wider font-bold py-2.5 rounded-xl transition-colors shadow-lg shadow-emerald-600/20 shrink-0"
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-30 disabled:hover:bg-emerald-600 text-white text-[10px] uppercase tracking-wider font-bold py-2.5 rounded-xl transition-colors shadow-lg shadow-emerald-600/20 shrink-0"
                  >
-                    Pay Dues
+                    Receive
                  </button>
              </div>
           </motion.div>
@@ -175,45 +177,69 @@ export const CustomersScreen = () => {
                       <h2 className="text-xl font-bold text-white mb-1">{selectedCustomer.name}</h2>
                       <p className="text-emerald-400 font-mono text-sm">+91 {selectedCustomer.phone}</p>
                    </div>
-                   <button onClick={() => setSelectedCustomer(null)} className="text-slate-400 hover:text-white text-xl leading-none w-8 h-8 flex items-center justify-center bg-slate-800 rounded-full transition-colors">&times;</button>
+                   <div className="flex items-center gap-3">
+                     <button
+                       onClick={() => {
+                         // Quick Billing action actually needs to select this customer in the billing screen
+                         // This is a feature of local state in Billing.tsx usually, but for now we just jump to the tab.
+                         // Ideally we could pass a param or context, but just jumping to billing is better than nothing
+                         // if we want to fulfill "Quick billing button from CRM". 
+                         // To do it fully, they can just search there. 
+                         setIsModalOpen(false);
+                         setSelectedCustomer(null);
+                         setActiveTab("billing");
+                       }}
+                       className="bg-blue-600 hover:bg-blue-500 text-white rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wider hidden xs:block"
+                     >
+                        New Bill
+                     </button>
+                     <button onClick={() => setSelectedCustomer(null)} className="text-slate-400 hover:text-white text-xl leading-none w-8 h-8 flex items-center justify-center bg-slate-800 rounded-full transition-colors">&times;</button>
+                   </div>
                 </div>
                 
-                <div className="flex-1 overflow-y-auto p-6">
-                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-                       <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+                   <div className="flex justify-center mb-6 xs:hidden">
+                     <button
+                       onClick={() => {
+                         setSelectedCustomer(null);
+                         setActiveTab("billing");
+                       }}
+                       className="w-full bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-4 py-3 text-sm font-bold uppercase tracking-wider shadow-lg shadow-blue-500/20"
+                     >
+                        Start New Bill
+                     </button>
+                   </div>
+                   <div className="grid grid-cols-2 gap-4 mb-6">
+                       <div className="bg-slate-900 p-3 rounded-2xl border border-slate-800">
                           <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Total Spent</p>
-                          <p className="text-emerald-400 font-bold font-mono text-lg">{formatCurrency(selectedCustomer.totalSpent || 0)}</p>
+                          <p className="text-emerald-400 font-bold font-mono text-base">{formatCurrency(selectedCustomer.totalSpent || 0)}</p>
                        </div>
-                       <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                       <div className="bg-slate-900 p-3 rounded-2xl border border-slate-800">
                           <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Dues</p>
-                          <p className={`font-bold font-mono text-lg ${(selectedCustomer.dues || 0) > 0 ? "text-red-400" : "text-emerald-400"}`}>{formatCurrency(selectedCustomer.dues || 0)}</p>
+                          <p className={`font-bold font-mono text-base ${(selectedCustomer.dues || 0) > 0 ? "text-red-400" : "text-emerald-400"}`}>{formatCurrency(selectedCustomer.dues || 0)}</p>
                        </div>
-                       <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                       <div className="bg-slate-900 p-3 rounded-2xl border border-slate-800">
                           <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Visits</p>
-                          <p className="text-white font-bold font-mono text-lg">{selectedCustomer.visits || 0}</p>
+                          <p className="text-white font-bold font-mono text-base">{selectedCustomer.visits || 0}</p>
                        </div>
-                       <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                       <div className="bg-slate-900 p-3 rounded-2xl border border-slate-800">
                           <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Last Visit</p>
-                          <p className="text-white font-bold font-sans text-sm mt-1">{selectedCustomer.lastVisit ? format(parseISO(selectedCustomer.lastVisit), "MMM dd, yyyy") : 'Never'}</p>
+                          <p className="text-white font-bold font-sans text-xs mt-1">{selectedCustomer.lastVisit ? format(parseISO(selectedCustomer.lastVisit), "MMM dd, yyyy") : 'Never'}</p>
                        </div>
                    </div>
 
-                   <h3 className="text-xs uppercase tracking-widest font-bold text-slate-400 mb-4">Purchase History</h3>
+                   <h3 className="text-xs uppercase tracking-widest font-bold text-slate-400 mb-3">Purchase History</h3>
                    <div className="space-y-3">
                       {customerSales.map(sale => (
-                         <div key={sale.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:border-slate-700 transition-colors">
-                            <div>
-                               <div className="flex items-center gap-3 mb-1">
-                                  <span className="bg-blue-500/10 text-blue-400 text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded border border-blue-500/20">{sale.billNo}</span>
-                                  <span className="text-slate-400 text-xs">{format(parseISO(sale.date), "dd MMM yyyy, hh:mm a")}</span>
-                               </div>
-                               <p className="text-xs text-slate-500 truncate max-w-sm">
-                                  {sale.items.map(i => `${i.qty}x ${i.name}`).join(', ')}
-                               </p>
-                            </div>
-                            <div className="text-left sm:text-right shrink-0">
+                         <div key={sale.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex flex-col gap-2 group hover:border-slate-700 transition-colors">
+                            <div className="flex items-center justify-between gap-3 mb-1">
+                               <span className="bg-blue-500/10 text-blue-400 text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded border border-blue-500/20">{sale.billNo}</span>
                                <p className="text-emerald-400 font-bold font-mono">{formatCurrency(sale.finalAmount)}</p>
                             </div>
+                            <span className="text-slate-400 text-[10px]">{format(parseISO(sale.date), "dd MMM yyyy, hh:mm a")}</span>
+                            <p className="text-xs text-slate-500 truncate mt-1">
+                               {sale.items.map(i => `${i.qty}x ${i.name}`).join(', ')}
+                            </p>
                          </div>
                       ))}
                       {customerSales.length === 0 && (

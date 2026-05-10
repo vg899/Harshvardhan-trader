@@ -43,19 +43,19 @@ export const ReportsScreen = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col gap-4">
         <div>
            <h2 className="text-2xl font-bold text-white tracking-tight">Reports & Analytics</h2>
            <p className="text-sm text-slate-400">Track your business performance</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="flex flex-col gap-6">
         <div className="bg-[#1e293b]/40 border border-slate-700/50 p-4 rounded-2xl flex flex-col">
           <div className="border-b border-slate-700 pb-3 mb-4">
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300">Sales (Last 7 Days)</h3>
           </div>
-          <div className="h-64 mt-2">
+          <div className="h-64 mt-2 -ml-6">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={last7DaysData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
@@ -75,7 +75,7 @@ export const ReportsScreen = () => {
           <div className="border-b border-slate-700 pb-3 mb-4">
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300">Top Selling Items</h3>
           </div>
-          <div className="h-64 mt-2">
+          <div className="h-64 mt-2 -ml-2">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={topItems} layout="vertical" margin={{ top: 0, right: 0, left: 40, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={true} vertical={false} />
@@ -97,34 +97,27 @@ export const ReportsScreen = () => {
         <div className="p-4 border-b border-slate-700 bg-slate-800/30">
            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300">All Invoices</h3>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left min-w-[700px]">
-            <thead className="text-[10px] uppercase tracking-widest text-slate-500 bg-slate-800/50 border-b border-slate-700">
-              <tr>
-                <th className="px-4 py-3">Bill No</th>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Customer</th>
-                <th className="px-4 py-3">Items</th>
-                <th className="px-4 py-3 text-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-700/50 text-xs">
-               {[...sales].sort((a,b)=> new Date(b.date).getTime() - new Date(a.date).getTime()).map(sale => (
-                  <tr key={sale.id} className="hover:bg-blue-500/5 transition-colors group">
-                     <td className="px-4 py-3 font-semibold text-slate-300 font-mono">{sale.billNo}</td>
-                     <td className="px-4 py-3 text-slate-400">{format(parseISO(sale.date), "MMM dd, hh:mm a")}</td>
-                     <td className="px-4 py-3 text-white">{sale.customerName}</td>
-                     <td className="px-4 py-3 text-slate-400 font-mono">{sale.items.length}</td>
-                     <td className="px-4 py-3 text-emerald-400 font-bold text-right">{formatCurrency(sale.finalAmount)}</td>
-                  </tr>
-               ))}
-               {sales.length === 0 && (
-                  <tr>
-                     <td colSpan={5} className="px-4 py-8 text-center text-slate-500">No invoices found.</td>
-                  </tr>
-               )}
-            </tbody>
-          </table>
+        <div className="flex flex-col p-3 space-y-3">
+           {[...sales].sort((a,b)=> new Date(b.date).getTime() - new Date(a.date).getTime()).map(sale => (
+              <div key={sale.id} className="bg-slate-800/80 border border-slate-700 rounded-xl p-3 flex flex-col shadow-md group">
+                 <div className="flex justify-between items-start mb-2">
+                    <span className="bg-blue-500/10 text-blue-400 text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded border border-blue-500/20">{sale.billNo}</span>
+                    <span className="text-[10px] text-slate-400">{format(parseISO(sale.date), "MMM dd, hh:mm a")}</span>
+                 </div>
+                 <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-sm font-bold text-white">{sale.customerName}</p>
+                      <p className="text-[10px] text-slate-500 font-mono mt-0.5">{sale.items.length} {sale.items.length === 1 ? 'item' : 'items'}</p>
+                    </div>
+                    <p className="text-emerald-400 font-bold font-mono text-sm">{formatCurrency(sale.finalAmount)}</p>
+                 </div>
+              </div>
+           ))}
+           {sales.length === 0 && (
+              <div className="py-8 text-center bg-slate-800/50 rounded-xl border border-slate-700 border-dashed">
+                 <p className="text-slate-500 text-sm">No invoices found.</p>
+              </div>
+           )}
         </div>
       </div>
     </div>

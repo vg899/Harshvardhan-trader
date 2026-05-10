@@ -180,28 +180,26 @@ export const BillingScreen = () => {
   };
 
   return (
-    <div className="flex flex-col xl:flex-row gap-6 relative">
-      <div className="flex-1 flex flex-col gap-6 w-full">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
-          <div>
-            <h2 className="text-2xl font-bold text-white tracking-tight">Point of Sale</h2>
-            <p className="text-sm text-slate-400">Fast billing & checkout</p>
-          </div>
+    <div className="flex flex-col gap-4 relative pb-24">
+      <div className="flex-1 flex flex-col gap-4 w-full">
+        <div>
+          <h2 className="text-xl font-bold text-white tracking-tight">Point of Sale</h2>
+          <p className="text-xs text-slate-400">Fast billing & checkout</p>
         </div>
 
         {/* Customer Selection Card */}
-        <div className="bg-[#1e293b]/40 border border-slate-700/50 p-5 rounded-3xl relative shrink-0 shadow-lg">
+        <div className="bg-[#1e293b]/40 border border-slate-700/50 p-4 rounded-3xl relative shrink-0 shadow-lg">
           <div className="flex items-center justify-between mb-3">
-             <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5"><UserIcon className="w-3.5 h-3.5"/> Customer Details</label>
+             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5"><UserIcon className="w-3.5 h-3.5"/> Customer</label>
              {!selectedCustomer && (
-                 <button onClick={() => setIsNewCustomer(!isNewCustomer)} className="text-[10px] text-blue-400 uppercase font-bold tracking-widest hover:text-blue-300">
-                     {isNewCustomer ? "Search Existing" : "+ Quick New"}
+                 <button onClick={() => setIsNewCustomer(!isNewCustomer)} className="text-[10px] text-blue-400 uppercase font-bold tracking-widest hover:text-blue-300 bg-blue-500/10 px-2 py-1 rounded">
+                     {isNewCustomer ? "Search" : "+ New"}
                  </button>
              )}
           </div>
           
           {selectedCustomer ? (
-            <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex justify-between items-center">
+            <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-3 flex justify-between items-center">
                <div>
                   <h3 className="text-white font-bold text-sm">{selectedCustomer.name}</h3>
                   <p className="text-slate-400 text-xs font-mono mt-0.5">+91 {selectedCustomer.phone}</p>
@@ -211,15 +209,15 @@ export const BillingScreen = () => {
                </button>
             </div>
           ) : isNewCustomer ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-               <input value={newCustomerDetails.name} onChange={e=>setNewCustomerDetails({...newCustomerDetails, name:e.target.value})} placeholder="Walk-in Customer Name (Optional)" className="w-full bg-[#0f172a] border border-slate-700 focus:border-blue-500 rounded-xl px-4 py-3 text-white text-sm outline-none transition-colors" />
-               <input type="tel" maxLength={10} value={newCustomerDetails.phone} onChange={e=>setNewCustomerDetails({...newCustomerDetails, phone:e.target.value.replace(/[^0-9]/g, '')})} placeholder="Mobile Number (Optional)" className="w-full bg-[#0f172a] border border-slate-700 focus:border-blue-500 rounded-xl px-4 py-3 text-white text-sm outline-none transition-colors" />
+            <div className="flex flex-col gap-2">
+               <input value={newCustomerDetails.name} onChange={e=>setNewCustomerDetails({...newCustomerDetails, name:e.target.value})} placeholder="Customer Name" className="w-full bg-[#0f172a] border border-slate-700 focus:border-blue-500 rounded-xl px-4 py-3 text-white text-sm outline-none transition-colors" />
+               <input type="tel" maxLength={10} value={newCustomerDetails.phone} onChange={e=>setNewCustomerDetails({...newCustomerDetails, phone:e.target.value.replace(/[^0-9]/g, '')})} placeholder="Mobile Number" className="w-full bg-[#0f172a] border border-slate-700 focus:border-blue-500 rounded-xl px-4 py-3 text-white text-sm outline-none transition-colors" />
             </div>
           ) : (
             <div className="relative">
               <input
                  type="text"
-                 placeholder="Search customer by name or phone..."
+                 placeholder="Search customer..."
                  value={customerSearch}
                  onChange={(e) => setCustomerSearch(e.target.value)}
                  className="w-full bg-[#0f172a] border border-slate-700 pl-4 pr-10 py-3 rounded-xl text-sm text-white focus:border-blue-500 outline-none transition-colors"
@@ -245,49 +243,47 @@ export const BillingScreen = () => {
         </div>
 
         {/* Item Search Card */}
-        <div className="bg-[#1e293b]/40 border border-slate-700/50 p-5 rounded-3xl relative shrink-0 shadow-lg z-20">
-          <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Scan or Search Products</label>
+        <div className="bg-[#1e293b]/40 border border-slate-700/50 p-4 rounded-3xl relative shrink-0 shadow-lg z-20">
+          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Search Products</label>
           <div className="relative border border-slate-700 focus-within:border-blue-500 rounded-2xl bg-[#0f172a] shadow-inner transition-colors flex items-center">
-             <Search className="text-blue-500 w-5 h-5 ml-4 shrink-0" />
+             <Search className="text-blue-500 w-4 h-4 ml-4 shrink-0" />
              <input
-               autoFocus
                type="text"
-               placeholder="Type item name..."
+               placeholder="Item name..."
                value={search}
                onChange={(e) => setSearch(e.target.value)}
-               className="w-full bg-transparent pl-3 pr-4 py-4 text-base text-white outline-none placeholder:text-slate-500"
+               className="w-full bg-transparent pl-3 pr-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
              />
           </div>
 
           <AnimatePresence>
             {search && filteredItems.length > 0 && (
-              <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden max-h-72 overflow-y-auto">
+              <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden max-h-64 overflow-y-auto z-30">
                   {filteredItems.map(item => {
                     const uniqueKey = item.isVariant ? `${item.id}-${item.variantSize}` : item.id;
                     return (
                     <button
                       key={uniqueKey}
                       onClick={() => addToCart(item)}
-                      className="w-full text-left p-4 hover:bg-slate-700 border-b border-slate-700/50 last:border-0 flex justify-between items-center transition-all group"
+                      className="w-full text-left p-3 hover:bg-slate-700 border-b border-slate-700/50 last:border-0 flex justify-between items-center transition-all group"
                     >
-                      <div>
-                        <p className="text-white font-semibold group-hover:text-blue-400 transition-colors">
+                      <div className="pr-2">
+                        <p className="text-white text-sm font-semibold group-hover:text-blue-400 transition-colors">
                           {item.name}
                           {item.category === "Paint" && item.color && (
-                             <span className="ml-1.5 text-slate-400 font-normal">({item.color})</span>
+                             <span className="ml-1 text-slate-400 font-normal text-xs">({item.color})</span>
                           )}
                           {item.isVariant && (
-                             <span className="ml-1.5 text-blue-400 font-bold">- {item.variantSize}</span>
+                             <span className="ml-1 text-blue-400 font-bold text-xs">- {item.variantSize}</span>
                           )}
                         </p>
                         <div className="flex gap-2 mt-1">
-                          <span className="text-[10px] bg-slate-900 px-2 py-0.5 rounded text-slate-400 uppercase tracking-wider border border-slate-700">{item.category}</span>
-                          <span className="text-[10px] bg-slate-900 px-2 py-0.5 rounded text-slate-400 uppercase tracking-wider border border-slate-700">Stock: {item.stock}</span>
+                          <span className="text-[9px] bg-slate-900 px-1.5 py-0.5 rounded text-slate-400 uppercase border border-slate-700">Stock: {item.stock}</span>
                         </div>
                       </div>
-                      <div className="text-right">
-                         <p className="text-emerald-400 font-bold font-mono text-lg">{formatCurrency(item.sellingPrice)}</p>
-                         <p className="text-[9px] text-slate-500 uppercase tracking-widest mt-0.5">Per {item.isVariant ? item.variantSize : item.unit}</p>
+                      <div className="text-right shrink-0">
+                         <p className="text-emerald-400 font-bold font-mono text-sm">{formatCurrency(item.sellingPrice)}</p>
+                         <p className="text-[8px] text-slate-500 uppercase tracking-widest mt-0.5">{item.isVariant ? item.variantSize : item.unit}</p>
                       </div>
                     </button>
                     )
@@ -295,8 +291,8 @@ export const BillingScreen = () => {
               </motion.div>
             )}
             {search && filteredItems.length === 0 && (
-                <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 text-center">
-                    <p className="text-slate-400 text-sm">No items found matching "{search}"</p>
+                <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-4 text-center z-30">
+                    <p className="text-slate-400 text-xs">No items found.</p>
                 </motion.div>
             )}
           </AnimatePresence>
@@ -304,78 +300,66 @@ export const BillingScreen = () => {
       </div>
 
       {/* RIGHT: POS REGISTER */}
-      <div className="w-full xl:w-[420px] flex flex-col shrink-0">
-        <div className="bg-[#0f172a] border border-slate-700 rounded-3xl flex flex-col h-[650px] xl:h-[calc(100vh-140px)] sticky top-24 overflow-hidden shadow-2xl">
-           <div className="p-5 border-b border-slate-800 bg-slate-900 flex justify-between items-center shrink-0">
-              <h3 className="text-sm uppercase tracking-widest font-bold text-white">Current Order</h3>
-              <span className="bg-blue-500/20 text-blue-400 text-[10px] px-2 py-1 uppercase font-bold tracking-widest rounded border border-blue-500/30">{cart.length} Items</span>
+      <div className="w-full flex justify-center sticky bottom-[4.5rem] z-10 pt-4 px-0">
+        <div className="bg-[#0f172a] border-t-2 border-l-2 border-r-2 border-t-slate-700 border-l-slate-700 border-r-slate-700 rounded-t-3xl flex flex-col w-full shadow-[0_-10px_40px_-5px_rgba(0,0,0,0.6)]">
+           <div className="p-3 border-b border-slate-800 bg-slate-800/80 rounded-t-3xl flex justify-between items-center shrink-0">
+              <h3 className="text-xs uppercase tracking-widest font-bold text-white pl-2">Current Order</h3>
+              <span className="bg-blue-500 text-white text-[10px] px-2 py-0.5 uppercase font-bold tracking-widest rounded-full">{cart.length} Items</span>
            </div>
            
-           <div className="flex-1 overflow-y-auto p-3 space-y-2">
-              <AnimatePresence>
-                {cart.length === 0 ? (
-                   <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="h-full flex flex-col items-center justify-center text-slate-500 opacity-60">
-                      <ShoppingBagIcon />
-                      <p className="text-xs uppercase tracking-widest font-bold mt-4">Cart is empty</p>
-                      <p className="text-[10px] text-slate-600 mt-1">Search and add products</p>
-                   </motion.div>
-                ) : (
-                   cart.map(item => (
-                      <motion.div layout initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} key={item.itemId} className="bg-slate-800 border border-slate-700 p-3 rounded-2xl flex flex-col gap-3 group relative">
-                         <div className="flex justify-between items-start pr-6">
-                            <p className="text-sm font-bold text-white leading-tight">{item.name}</p>
-                            <p className="text-emerald-400 font-bold font-mono shrink-0">{formatCurrency(item.total)}</p>
-                         </div>
-                         <div className="flex items-center justify-between">
-                            <p className="text-xs font-mono text-slate-400">{formatCurrency(item.price)} each</p>
-                            <div className="flex items-center bg-slate-900 rounded-xl border border-slate-700 p-0.5">
-                               <button onClick={() => updateQty(item.itemId, item.qty - 1)} className="w-8 h-7 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"><Minus className="w-4 h-4"/></button>
-                               <span className="text-sm text-white font-bold font-mono w-8 text-center">{item.qty}</span>
-                               <button onClick={() => updateQty(item.itemId, item.qty + 1)} className="w-8 h-7 flex items-center justify-center text-blue-400 hover:text-blue-300 hover:bg-slate-800 rounded-lg transition-colors"><Plus className="w-4 h-4"/></button>
-                            </div>
-                         </div>
-                         <button onClick={() => removeFromCart(item.itemId)} className="absolute top-2.5 right-2.5 text-slate-500 hover:text-red-400 p-1"><X className="w-4 h-4"/></button>
-                      </motion.div>
-                   ))
-                )}
-              </AnimatePresence>
-           </div>
+           {cart.length > 0 && (
+             <div className="flex-1 overflow-y-auto p-2 space-y-2 max-h-48 border-b border-slate-800 bg-[#0f172a]">
+                <AnimatePresence>
+                     {cart.map(item => (
+                        <motion.div layout initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} key={item.itemId} className="bg-slate-800/50 border border-slate-700 p-2.5 rounded-2xl flex flex-col gap-2 relative">
+                           <div className="flex justify-between items-start pr-6">
+                              <p className="text-xs font-bold text-white leading-tight">{item.name}</p>
+                              <p className="text-emerald-400 font-bold font-mono text-sm shrink-0">{formatCurrency(item.total)}</p>
+                           </div>
+                           <div className="flex items-center justify-between">
+                              <p className="text-[10px] font-mono text-slate-400">{formatCurrency(item.price)} each</p>
+                              <div className="flex items-center bg-slate-900 rounded-xl border border-slate-700 p-0.5">
+                                 <button onClick={() => updateQty(item.itemId, item.qty - 1)} className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"><Minus className="w-4 h-4"/></button>
+                                 <span className="text-xs text-white font-bold font-mono w-6 text-center">{item.qty}</span>
+                                 <button onClick={() => updateQty(item.itemId, item.qty + 1)} className="w-8 h-8 flex items-center justify-center text-blue-400 hover:text-blue-300 hover:bg-slate-800 rounded-lg transition-colors"><Plus className="w-4 h-4"/></button>
+                              </div>
+                           </div>
+                           <button onClick={() => removeFromCart(item.itemId)} className="absolute top-2 right-2 text-slate-500 hover:text-red-400 p-1"><X className="w-3 h-3"/></button>
+                        </motion.div>
+                     ))}
+                </AnimatePresence>
+             </div>
+           )}
 
-           <div className="p-5 bg-slate-900 border-t border-slate-800 shrink-0">
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                 <div>
-                    <label className="block text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-1.5">Discount (₹)</label>
-                    <input type="number" min="0" value={discount} onChange={e=>setDiscount(Number(e.target.value))} className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none font-mono transition-colors" />
-                 </div>
-                 <div>
-                    <label className="block text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-1.5">GST (%)</label>
-                    <select value={gstPercent} onChange={e=>setGstPercent(Number(e.target.value))} className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none font-mono transition-colors appearance-none">
-                       <option value={0}>No GST</option>
-                       <option value={5}>5%</option>
-                       <option value={12}>12%</option>
-                       <option value={18}>18%</option>
-                       <option value={28}>28%</option>
-                    </select>
-                 </div>
-              </div>
+           <div className="p-4 bg-slate-900 shrink-0">
+              {cart.length > 0 && (
+                <div className="flex gap-2 mb-3">
+                   <div className="flex-1">
+                      <input type="number" min="0" placeholder="Discount ₹" value={discount || ''} onChange={e=>setDiscount(Number(e.target.value))} className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-blue-500 outline-none font-mono" />
+                   </div>
+                   <div className="flex-1">
+                      <select value={gstPercent} onChange={e=>setGstPercent(Number(e.target.value))} className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-blue-500 outline-none font-mono appearance-none">
+                         <option value={0}>No GST</option>
+                         <option value={5}>5% GST</option>
+                         <option value={12}>12% GST</option>
+                         <option value={18}>18% GST</option>
+                         <option value={28}>28% GST</option>
+                      </select>
+                   </div>
+                </div>
+              )}
               
-              <div className="space-y-1.5 mb-4 px-1">
-                 <div className="flex justify-between text-xs font-mono text-slate-400"><p className="font-sans uppercase tracking-widest font-bold">Subtotal</p><p>{formatCurrency(totals.subtotal)}</p></div>
-                 {discount > 0 && <div className="flex justify-between text-xs font-mono text-orange-400"><p className="font-sans uppercase tracking-widest font-bold">Discount</p><p>-{formatCurrency(discount)}</p></div>}
-                 {totals.gstAmount > 0 && <div className="flex justify-between text-xs font-mono text-slate-400"><p className="font-sans uppercase tracking-widest font-bold">GST ({gstPercent}%)</p><p>+{formatCurrency(totals.gstAmount)}</p></div>}
-              </div>
-
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-blue-900/20 border border-blue-500/20 p-4 rounded-2xl mb-4">
-                 <p className="text-blue-400 uppercase text-[10px] font-bold tracking-widest mb-1 sm:mb-0">Total Amount</p>
-                 <p className="text-3xl font-bold text-white font-mono tracking-tight">{formatCurrency(totals.finalAmount)}</p>
+              <div className="flex items-center justify-between bg-blue-900/20 border border-blue-500/20 p-3 rounded-2xl mb-3">
+                 <p className="text-blue-400 uppercase text-[10px] font-bold tracking-widest">Total</p>
+                 <p className="text-2xl font-bold text-white font-mono tracking-tight">{formatCurrency(totals.finalAmount)}</p>
               </div>
 
               <button 
                 onClick={handleCheckout}
                 disabled={cart.length === 0}
-                className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:hover:bg-blue-600 text-white font-bold py-4 px-4 rounded-2xl transition-all shadow-lg shadow-blue-500/25 active:scale-[0.98] flex justify-center items-center gap-2 uppercase tracking-wider text-sm"
+                className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:bg-slate-700 text-white font-bold py-3.5 px-4 rounded-[1.25rem] transition-all shadow-lg shadow-blue-500/25 active:scale-[0.98] flex justify-center items-center gap-2 uppercase tracking-wider text-sm"
               >
-                Checkout & Save Bill <ArrowRightIcon className="w-4 h-4"/>
+                Save Bill
               </button>
            </div>
         </div>

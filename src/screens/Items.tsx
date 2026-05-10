@@ -99,84 +99,72 @@ export const ItemsScreen = () => {
           ))}
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left min-w-[700px]">
-            <thead className="text-[10px] uppercase tracking-widest text-slate-500 bg-slate-800/50 border-b border-slate-700">
-              <tr>
-                <th className="px-4 py-3">Item Name</th>
-                <th className="px-4 py-3">Category</th>
-                <th className="px-4 py-3 text-center">Unit</th>
-                <th className="px-4 py-3 text-right">Price</th>
-                <th className="px-4 py-3 text-right">Stock</th>
-                <th className="px-4 py-3 text-center">Status</th>
-                <th className="px-4 py-3 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-700/50 text-xs">
-              {filteredItems.map(item => (
-                <tr key={item.id} className="hover:bg-blue-500/5 transition-colors group">
-                  <td className="px-4 py-3 font-semibold text-white">
-                    {item.name}
-                    {item.category === "Paint" && item.color && (
-                      <span className="ml-2 text-xs font-normal text-slate-400">({item.color})</span>
-                    )}
-                    {item.quantityVariants && item.quantityVariants.length > 0 && (
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        {item.quantityVariants.map(v => (
-                           <span key={v.size} className="text-[9px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 border border-slate-700">
-                             {v.size}: {v.stock}
-                           </span>
-                        ))}
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-slate-400 italic">{item.category}</td>
-                  <td className="px-4 py-3 text-slate-300 text-center">{item.unit}</td>
-                  <td className="px-4 py-3 text-right text-emerald-400 font-bold">
-                    {item.quantityVariants && item.quantityVariants.length > 0 ? (
-                       <span className="text-slate-400 font-normal text-[10px]">Variants</span>
-                    ) : (
-                       formatCurrency(item.sellingPrice)
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-right font-mono text-slate-200">
-                    {item.quantityVariants && item.quantityVariants.length > 0 ? (
-                       item.quantityVariants.reduce((acc, v) => acc + v.stock, 0)
-                    ) : (
-                       item.stock
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    {(item.quantityVariants && item.quantityVariants.length > 0 ? item.quantityVariants.reduce((acc, v) => acc + v.stock, 0) : item.stock) <= 0 ? (
-                      <span className="px-2 py-0.5 bg-red-500/10 text-red-500 rounded-full text-[10px] uppercase font-bold">Out of Stock</span>
-                    ) : (item.quantityVariants && item.quantityVariants.length > 0 ? item.quantityVariants.reduce((acc, v) => acc + v.stock, 0) : item.stock) < 10 ? (
-                      <span className="px-2 py-0.5 bg-orange-500/10 text-orange-500 rounded-full text-[10px] uppercase font-bold">Low Stock</span>
-                    ) : (
-                      <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 rounded-full text-[10px] uppercase font-bold">In Stock</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2 justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                      {userProfile?.role === "Admin" ? (
-                        <>
-                          <button onClick={() => setViewingHistoryFor(item)} className="p-1 px-2 text-[10px] uppercase font-bold tracking-wider bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/40 rounded">History</button>
-                          <button onClick={() => openEdit(item)} className="p-1 px-2 text-[10px] uppercase font-bold tracking-wider bg-slate-700 text-slate-300 hover:text-white rounded">Edit</button>
-                          <button onClick={() => {if(confirm('Delete item?')) deleteItem(item.id)}} className="p-1 px-2 text-[10px] uppercase font-bold tracking-wider bg-red-500/20 text-red-400 hover:bg-red-500/40 rounded">Del</button>
-                        </>
-                      ) : (
-                        <span className="text-[10px] text-slate-500 italic">View Only</span>
+        <div className="flex flex-col p-3 space-y-3 bg-[#0f172a]">
+          {filteredItems.map(item => {
+            const hasVariants = item.quantityVariants && item.quantityVariants.length > 0;
+            const totalStock = hasVariants ? item.quantityVariants!.reduce((acc, v) => acc + v.stock, 0) : item.stock;
+            const statusClass = totalStock <= 0 ? 'bg-red-500/10 text-red-500 border-red-500/20' : totalStock < 10 ? 'bg-orange-500/10 text-orange-500 border-orange-500/20' : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
+            const statusText = totalStock <= 0 ? 'Out of Stock' : totalStock < 10 ? 'Low Stock' : 'In Stock';
+
+            return (
+              <div key={item.id} className="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3 relative shadow-md">
+                <div className="flex justify-between items-start pr-8">
+                  <div>
+                    <h3 className="text-sm font-bold text-white leading-tight">
+                      {item.name}
+                      {item.category === "Paint" && item.color && (
+                        <span className="ml-1 text-xs font-normal text-slate-400">({item.color})</span>
                       )}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[9px] uppercase tracking-wider font-bold bg-slate-900 border border-slate-700 text-slate-400 px-1.5 py-0.5 rounded">{item.category}</span>
+                      <span className="text-[9px] uppercase tracking-wider font-bold bg-slate-900 border border-slate-700 text-slate-400 px-1.5 py-0.5 rounded">{item.unit}</span>
+                      <span className={`text-[9px] uppercase tracking-wider font-bold border px-1.5 py-0.5 rounded ${statusClass}`}>{statusText}</span>
                     </div>
-                  </td>
-                </tr>
-              ))}
-              {filteredItems.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-slate-500">No matching items found.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                  </div>
+                  <div className="text-right shrink-0 absolute right-4 top-4">
+                     <p className="text-emerald-400 font-bold font-mono text-sm">
+                       {hasVariants ? <span className="text-slate-400 font-normal text-[10px]">Variants</span> : formatCurrency(item.sellingPrice)}
+                     </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <div className="flex justify-between items-center bg-slate-900 p-2 rounded-xl border border-slate-700/50">
+                     <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Total Stock</span>
+                     <span className="text-sm text-white font-mono font-bold">{totalStock}</span>
+                  </div>
+                  {hasVariants && (
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      {item.quantityVariants!.map(v => (
+                         <div key={v.size} className="flex flex-col bg-slate-900 border border-slate-700 px-2 py-1 rounded-lg">
+                           <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">{v.size}</span>
+                           <span className="text-xs text-slate-300 font-mono font-bold">Stock: {v.stock}</span>
+                         </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-2 pt-3 border-t border-slate-700 mt-1">
+                  {userProfile?.role === "Admin" ? (
+                    <>
+                      <button onClick={() => setViewingHistoryFor(item)} className="flex-1 py-1.5 text-[10px] uppercase font-bold tracking-wider bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/40 rounded-xl transition-colors">History</button>
+                      <button onClick={() => openEdit(item)} className="flex-1 py-1.5 text-[10px] uppercase font-bold tracking-wider bg-slate-700 text-slate-300 hover:text-white hover:bg-slate-600 rounded-xl transition-colors">Edit</button>
+                      <button onClick={() => {if(confirm('Delete item?')) deleteItem(item.id)}} className="flex-1 py-1.5 text-[10px] uppercase font-bold tracking-wider bg-red-500/20 text-red-400 hover:bg-red-500/40 rounded-xl transition-colors">Del</button>
+                    </>
+                  ) : (
+                    <span className="w-full text-center text-[10px] text-slate-500 italic py-1.5">View Only - Contact Admin to edit</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+          {filteredItems.length === 0 && (
+            <div className="py-12 bg-slate-800/50 rounded-2xl border border-slate-700 border-dashed text-center">
+               <p className="text-slate-500 text-sm font-medium">No matching items found.</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -187,15 +175,16 @@ export const ItemsScreen = () => {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl"
+              className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
             >
-              <div className="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-800/50">
+              <div className="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-800/50 shrink-0">
                  <h2 className="text-sm uppercase tracking-widest font-bold text-white">{editingItem ? "Edit Item" : "New Item"}</h2>
                  <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
               </div>
-              <form onSubmit={handleSave} className="p-5 space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Item Name</label>
+              <form onSubmit={handleSave} className="flex flex-col overflow-hidden flex-1">
+                <div className="p-5 space-y-4 overflow-y-auto flex-1">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Item Name</label>
                   <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-blue-500 outline-none text-sm" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -281,8 +270,9 @@ export const ItemsScreen = () => {
                     <p className="text-[10px] text-slate-500 italic">Optional. Add if item has multiple sizes (e.g. 1L, 5L).</p>
                   )}
                 </div>
+                </div>
                 
-                <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+                <div className="flex justify-end gap-3 p-5 pt-4 border-t border-slate-800 shrink-0 bg-slate-900">
                   <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-xs uppercase tracking-wider font-bold text-slate-400 hover:text-white">Cancel</button>
                   <button type="submit" className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-wider rounded-lg shadow-lg shadow-blue-500/20 active:scale-95 transition-all">
                      SAVE ITEM

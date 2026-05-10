@@ -55,11 +55,13 @@ export default function App() {
   }
 
   return (
-    <div className="fixed inset-0 bg-[#0f172a] text-slate-100 flex flex-col font-sans selection:bg-blue-500 selection:text-white overflow-hidden pt-[env(safe-area-inset-top)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
-      <Header />
-      <div className="flex flex-1 flex-col overflow-hidden relative">
-        <MainContent />
-        <Navigation />
+    <div className="fixed inset-0 bg-slate-950 flex justify-center items-center sm:p-4">
+      <div className="w-full h-full max-w-[420px] bg-[#0f172a] text-slate-100 flex flex-col font-sans selection:bg-blue-500 selection:text-white overflow-hidden relative sm:rounded-[2.5rem] sm:border-[10px] sm:border-slate-800 shadow-2xl">
+        <Header />
+        <div className="flex flex-1 flex-col overflow-hidden relative">
+          <MainContent />
+          <Navigation />
+        </div>
       </div>
     </div>
   );
